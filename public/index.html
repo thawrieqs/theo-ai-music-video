@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Theo — Gambar jadi Music Video AI</title>
+<style>
+:root{--bg:#0b0b12;--card:#14141f;--ink:#f4f3fa;--mut:#9a98ad;--line:#2a2a3c;--acc:#8b5cf6;--acc2:#ec4899;--f:#0f0f19}
+@media(prefers-color-scheme:light){:root{--bg:#f6f5fb;--card:#fff;--ink:#17161f;--mut:#6b6980;--line:#dedcec;--f:#f1f0f8}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;line-height:1.5}
+.w{max-width:1040px;margin:auto;padding:20px 16px 48px}header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.logo{font-size:28px;font-weight:800;background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tok{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;min-width:200px;font-size:13px;color:var(--mut)}.tok b{font-size:18px;color:var(--ink)}
+.bar{height:6px;background:var(--f);border-radius:9px;margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .4s}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:820px){.g{grid-template-columns:1fr}}
+.c{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:18px 0 8px}h2:first-child{margin-top:0}
+.drop{border:2px dashed var(--line);border-radius:14px;min-height:130px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--mut);cursor:pointer;background:var(--f);padding:10px}
+.drop img,.drop video{max-width:100%;max-height:190px;border-radius:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.b{flex:1;min-width:70px;background:var(--f);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px;font:inherit;font-size:14px;cursor:pointer}
+.b.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 22%,var(--f));font-weight:600}
+textarea,.field{width:100%;background:var(--f);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit}
+textarea{min-height:90px}
+.go{width:100%;margin-top:20px;border:0;border-radius:14px;padding:14px;font:inherit;font-size:16px;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--acc),var(--acc2));cursor:pointer}.go:disabled{opacity:.45;cursor:not-allowed}
+.s{aspect-ratio:16/9;background:#000;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#8d8ba0;text-align:center;padding:12px;overflow:hidden}.s video{width:100%;height:100%}
+.m{font-size:13px;color:var(--mut);margin-top:10px;min-height:20px}.m.e{color:#f87171}a{color:var(--acc)}
+.auth{max-width:500px;margin:0 auto 18px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.auth h2{margin-top:0}.auth .field{margin:5px 0 10px}.auth .go{margin-top:8px}.hidden{display:none!important}.authrow{display:flex;gap:8px;flex-wrap:wrap}.authrow button{flex:1}
+.small{font-size:12px;color:var(--mut)}
+</style></head><body><div class="w">
+<header><div class="logo">Theo</div><div class="tok"><b id="tl">–</b> / <span id="tm">100</span> token hari ini<div class="bar"><i id="tb" style="width:0"></i></div><div id="who" class="small">Belum login</div></div></header>
+
+<section class="auth" id="auth">
+  <h2>Akun Theo</h2>
+  <label for="email">Email</label><input class="field" id="email" type="email" autocomplete="email" placeholder="nama@email.com">
+  <label for="password">Password</label><input class="field" id="password" type="password" autocomplete="current-password" minlength="8" placeholder="Minimal 8 karakter">
+  <div class="authrow"><button class="b on" id="login">Login</button><button class="b" id="signup">Daftar akun</button></div>
+  <div class="m" id="authmsg" role="status"></div>
+  <div class="small">Gunakan email milikmu sendiri. Jangan bagikan password kepada siapa pun.</div>
+  <button class="b hidden" id="logout" style="width:100%;margin-top:8px">Logout</button>
+</section>
+
+<div id="app" class="hidden"><div class="g"><section class="c">
+<h2>1. Gambar</h2><label class="drop" id="id"><span>Klik untuk unggah gambar</span><input id="img" type="file" accept="image/*" hidden></label>
+<h2>2. Arahan video</h2><div class="row"><button class="b on" data-m="t">Ketik prompt</button><button class="b" data-m="v">Referensi video</button></div>
+<div style="margin-top:10px"><textarea id="pr" placeholder="Contoh: Penyanyi berjalan di jalan neon saat hujan, kamera zoom perlahan..."></textarea></div>
+<div id="vb" style="margin-top:10px;display:none"><label class="drop" id="vd"><span>Klik untuk unggah video referensi (gerakan & mood akan ditiru)</span><input id="vid" type="file" accept="video/*" hidden></label></div>
+<h2>3. Durasi</h2><div class="row" id="du"><button class="b" data-d="8">8 detik</button><button class="b on" data-d="10">10 detik</button><button class="b" data-d="12">12 detik</button><button class="b" data-d="15">15 detik</button></div>
+<button class="go" id="go">Generate · 10 token</button><div class="m" id="msg"></div>
+</section><section class="c"><h2>Hasil</h2><div class="s" id="out">Video kamu akan muncul di sini</div><div class="m" id="st"></div></section></div></div></div>
+<script src="/config.js"></script>
+<script>
+/* Dikirim server dari environment; hanya URL dan publishable key yang publik. */
+const SUPABASE_URL = window.THEO_CONFIG?.SUPABASE_URL || '';
+const SUPABASE_PUBLISHABLE_KEY = window.THEO_CONFIG?.SUPABASE_PUBLISHABLE_KEY || '';
+const $=i=>document.getElementById(i);
+let mode='t',dur=10,imgData=null,frames=null,busy=false,accessToken=localStorage.getItem('theo_access_token')||'';
+const authMsg=(t,e=false)=>{$('authmsg').textContent=t||'';$('authmsg').className='m'+(e?' e':'')};
+const msg=(t,e=false)=>{$('msg').textContent=t||'';$('msg').className='m'+(e?' e':'')};
+function authHeaders(extra={}){return {...extra,...(accessToken?{Authorization:'Bearer '+accessToken}:{})}}
+async function authRequest(path,body){const r=await fetch(SUPABASE_URL+'/auth/v1'+path,{method:'POST',headers:{apikey:SUPABASE_PUBLISHABLE_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.msg||d.message||d.error_description||d.error||'Autentikasi gagal.');return d}
+function showLoggedIn(user){$('auth').querySelectorAll('label,input,.authrow,.small').forEach(e=>e.classList.add('hidden'));$('authmsg').textContent='Login sebagai '+(user.email||'pengguna Theo');$('authmsg').className='m';$('logout').classList.remove('hidden');$('who').textContent=user.email||'Login aktif';$('app').classList.remove('hidden');refreshTokens()}
+function showLoggedOut(){$('auth').querySelectorAll('label,input,.authrow,.small').forEach(e=>e.classList.remove('hidden'));$('logout').classList.add('hidden');$('who').textContent='Belum login';$('app').classList.add('hidden');$('tl').textContent='–';$('tb').style.width='0%'}
+async function api(path,options={}){const r=await fetch(path,{...options,headers:authHeaders(options.headers||{})});const d=await r.json().catch(()=>({}));if(r.status===401){logout();throw new Error(d.error||'Silakan login kembali.')}return {r,d}}
+async function refreshTokens(){try{const {r,d}=await api('/api/tokens');if(!r.ok)throw new Error(d.error||'Gagal membaca kuota.');tok(d)}catch(e){msg(e.message,true)}}
+function tok(d){$('tl').textContent=d.left;$('tm').textContent=d.max;$('tb').style.width=Math.max(0,d.left/d.max*100)+'%';$('go').disabled=busy||d.left<d.cost;if(d.left<d.cost)msg('Token hari ini habis. Kembali lagi besok!',true)}
+function logout(){if(accessToken)fetch(SUPABASE_URL+'/auth/v1/logout',{method:'POST',headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+accessToken}}).catch(()=>{});accessToken='';localStorage.removeItem('theo_access_token');showLoggedOut();authMsg('Kamu sudah logout.')}
+$('login').onclick=async()=>{const email=$('email').value.trim(),password=$('password').value;if(!email||!password)return authMsg('Isi email dan password dulu.',true);try{const d=await authRequest('/token?grant_type=password',{email,password});if(!d.access_token)throw new Error('Login belum menghasilkan sesi.');accessToken=d.access_token;localStorage.setItem('theo_access_token',accessToken);showLoggedIn(d.user||{email});authMsg('Login berhasil.')}catch(e){authMsg(e.message,true)}};
+$('signup').onclick=async()=>{const email=$('email').value.trim(),password=$('password').value;if(!email||!password)return authMsg('Isi email dan password dulu.',true);if(password.length<8)return authMsg('Gunakan password minimal 8 karakter.',true);try{const d=await authRequest('/signup',{email,password});if(d.access_token){accessToken=d.access_token;localStorage.setItem('theo_access_token',accessToken);showLoggedIn(d.user||{email});authMsg('Akun berhasil dibuat dan login.')}else authMsg('Pendaftaran diterima. Cek email untuk verifikasi, lalu login.')}catch(e){authMsg(e.message,true)}};
+$('logout').onclick=logout;
+if(SUPABASE_URL.startsWith('https://')&&!SUPABASE_PUBLISHABLE_KEY.startsWith('GANTI_')&&accessToken){
+  fetch(SUPABASE_URL+'/auth/v1/user',{headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+accessToken}}).then(r=>r.ok?r.json():Promise.reject()).then(showLoggedIn).catch(()=>{accessToken='';localStorage.removeItem('theo_access_token');showLoggedOut()});
+}else showLoggedOut();
+
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('[data-m]').forEach(x=>x.classList.toggle('on',x===b));$('vb').style.display=mode==='v'?'':'none'});
+document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{dur=+b.dataset.d;document.querySelectorAll('[data-d]').forEach(x=>x.classList.toggle('on',x===b))});
+const load=f=>new Promise((resolve,reject)=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>resolve([i,u]);i.onerror=reject;i.src=u});
+function shrink(el,w0,h0,max,q){const k=Math.min(1,max/Math.max(w0,h0)),c=document.createElement('canvas');c.width=Math.round(w0*k);c.height=Math.round(h0*k);c.getContext('2d').drawImage(el,0,0,c.width,c.height);return c.toDataURL('image/jpeg',q)}
+function bindImageInput(){ $('img').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const[i,u]=await load(f);imgData=shrink(i,i.naturalWidth,i.naturalHeight,1536,.92);$('id').innerHTML='<img src="'+u+'"><input id="img" type="file" accept="image/*" hidden>';bindImageInput();}catch{msg('Gagal membaca gambar.',true)}}; }
+bindImageInput();
+function bindVideoInput(){ $('vid').onchange=async e=>{const f=e.target.files[0];if(!f)return;const v=document.createElement('video');v.src=URL.createObjectURL(f);v.muted=true;try{await new Promise((resolve,reject)=>{v.onloadedmetadata=resolve;v.onerror=reject});frames=[];for(const p of[.15,.4,.65,.9]){v.currentTime=v.duration*p;await new Promise((resolve,reject)=>{v.onseeked=resolve;v.onerror=reject});frames.push(shrink(v,v.videoWidth,v.videoHeight,512,.8))}$('vd').innerHTML='<video src="'+v.src+'" muted controls></video><input id="vid" type="file" accept="video/*" hidden>';bindVideoInput()}catch{msg('Gagal membaca video referensi.',true)}}; }
+bindVideoInput();
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+$('go').onclick=async()=>{
+  if(!imgData)return msg('Unggah gambar dulu.',true);
+  if(mode==='t'&&!$('pr').value.trim())return msg('Tulis prompt dulu.',true);
+  if(mode==='v'&&!frames)return msg('Unggah video referensi dulu.',true);
+  busy=true;$('go').disabled=true;msg('');$('out').textContent='Mengirim ke AI…';
+  try{
+    const {r,d}=await api('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:imgData,prompt:$('pr').value,duration:dur,frames:mode==='v'?frames:null})});
+    if(d.left!==undefined)tok(d);if(!r.ok)throw new Error(d.error||'Generate gagal.');
+    const t0=Date.now();
+    for(;;){await sleep(5000);const {r:sr,d:s}=await api('/api/status/'+encodeURIComponent(d.id));if(!sr.ok||s.error)throw new Error(s.error||'Gagal memeriksa status.');
+      if(s.status==='done'){$('out').innerHTML='';const video=document.createElement('video');video.src=s.videoUrl;video.controls=true;video.autoplay=true;video.loop=true;video.playsInline=true;$('out').append(video);$('st').textContent='Selesai. ';const a=document.createElement('a');a.href=s.videoUrl;a.target='_blank';a.rel='noopener';a.textContent='Buka / unduh video';$('st').append(a);break}
+      $('out').textContent='AI sedang membuat video… '+Math.round((Date.now()-t0)/1000)+' dtk'+(s.position!=null?' (antrean '+s.position+')':'');
+    }
+  }catch(e){msg(e.message,true);$('out').textContent='Gagal. Periksa pesan di atas.';refreshTokens()}
+  busy=false;refreshTokens();
+};
+</script></body></html>
