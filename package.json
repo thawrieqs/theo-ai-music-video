@@ -1,11 +1,12 @@
 {
   "name": "theo",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "module",
   "scripts": {
-    "start": "node --env-file=.env server.js"
+    "start": "node -r dotenv/config server.js"
   },
   "dependencies": {
+    "dotenv": "^16.4.7",
     "express": "^4.19.2"
   },
   "engines": {
