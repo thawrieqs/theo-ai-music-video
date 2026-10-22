@@ -14,7 +14,6 @@ const EXTRA = JSON.parse(process.env.FAL_EXTRA_INPUT || '{"fps":25}');
 const CLAUDE_MODEL = process.env.CLAUDE_MODEL || 'claude-sonnet-5-5';
 const DAILY = 100, COST = 10, DURATIONS = [8, 10, 12, 15];
 
-if (!FAL_KEY) throw new Error('FAL_KEY belum diisi.');
 if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error('SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, dan SUPABASE_SERVICE_ROLE_KEY wajib diisi di environment server.');
 }
@@ -22,6 +21,7 @@ const SB_URL = SUPABASE_URL.replace(/\/+$/, '');
 
 const app = express();
 app.use(express.json({ limit: '30mb' }));
+app.get('/healthz', (_req, res) => res.status(200).json({ ok: true, app: 'Theo' }));
 app.get('/config.js', (_req, res) => {
   res.type('application/javascript').send(
     `window.THEO_CONFIG = ${JSON.stringify({
@@ -128,10 +128,11 @@ app.post('/api/generate', requireUser, async (req, res) => {
   const { image, prompt = '', duration, frames } = req.body || {};
   if (!/^data:image\//.test(image || '')) return res.status(400).json({ error: 'Gambar wajib diunggah.' });
   if (!DURATIONS.includes(+duration)) return res.status(400).json({ error: 'Durasi tidak valid.' });
-  if (!prompt.trim() && !frames?.length) return res.status(400).json({ error: 'Tulis prompt atau unggah video referensi.' });
+  if (typeof prompt !== 'string' || (!prompt.trim() && !frames?.length)) return res.status(400).json({ error: 'Tulis prompt atau unggah video referensi.' });
   if (frames && (!Array.isArray(frames) || frames.length > 4 || frames.some(f => typeof f !== 'string' || !f.startsWith('data:image/')))) {
     return res.status(400).json({ error: 'Frame video referensi tidak valid.' });
   }
+  if (!FAL_KEY) return res.status(503).json({ error: 'Fitur generate belum aktif karena FAL_KEY belum diatur di Environment Render. Login dan pengecekan kuota tetap bisa diuji.' });
 
   let quota;
   try { quota = await consumeTokens(req.user.id); }
@@ -198,4 +199,4 @@ app.get('/api/status/:id', requireUser, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`Theo jalan di port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`Theo jalan di port ${PORT}`));
